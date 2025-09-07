@@ -1,1 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time Machine Simulation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            padding: 20px;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+            position: relative;
+        }
+        
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 30px;
+            text-shadow: 0 0 15px rgba(0, 255, 255, 0.7);
+            animation: glow 2s infinite alternate;
+        }
+        
+        .time-machine {
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+            border: 2px solid #0ff;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .input-container {
+            margin-bottom: 30px;
+        }
+        
+        input {
+            padding: 15px;
+            width: 200px;
+            border: 2px solid #0ff;
+            background: rgba(0, 0, 0, 0.5);
+            color: #0ff;
+            font-size: 1.5rem;
+            text-align: center;
+            border-radius: 8px;
+            outline: none;
+        }
+        
+        button {
+            padding: 15px 30px;
+            background: linear-gradient(45deg, #ff00cc, #3333ff);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s;
+            box-shadow: 0 0 15px rgba(255, 0, 204, 0.5);
+        }
+        
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(255, 0, 204, 0.8);
+        }
+        
+        .display {
+            min-height: 200px;
+            border: 2px solid #0ff;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .travel-box {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: linear-gradient(45deg, #ff00cc, #3333ff);
+            border-radius: 50%;
+            animation: travel 4s linear infinite;
+            opacity: 0.7;
+        }
+        
+        .message {
+            margin: 10px 0;
+            font-size: 1.2rem;
+            text-shadow: 0 0 5px #0ff;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s;
+        }
+        
+        .final-message {
+            font-size: 2rem;
+            color: #ff0066;
+            text-shadow: 0 0 10px #ff0066;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        
+        .loading-bar {
+            width: 0%;
+            height: 10px;
+            background: linear-gradient(to right, #ff00cc, #3333ff);
+            border-radius: 5px;
+            margin-top: 20px;
+            transition: width 5s linear;
+        }
+        
+        @keyframes glow {
+            from {
+                text-shadow: 0 0 10px rgba(0, 255, 255, 0.7);
+            }
+            to {
+                text-shadow: 0 0 20px rgba(0, 255, 255, 1), 0 0 30px rgba(0, 255, 255, 0.5);
+            }
+        }
+        
+        @keyframes travel {
+            0% {
+                transform: translateY(0) translateX(0);
+                opacity: 0.7;
+            }
+            25% {
+                transform: translateY(180px) translateX(100px);
+            }
+            50% {
+                transform: translateY(90px) translateX(250px);
+            }
+            75% {
+                transform: translateY(180px) translateX(400px);
+            }
+            100% {
+                transform: translateY(0) translateX(550px);
+                opacity: 0;
+            }
+        }
+        
+        .skull {
+            font-size: 3rem;
+            margin-top: 10px;
+            animation: skull-shake 0.5s infinite;
+        }
+        
+        @keyframes skull-shake {
+            0% { transform: rotate(0deg); }
+            25% { transform: rotate(10deg); }
+            50% { transform: rotate(0deg); }
+            75% { transform: rotate(-10deg); }
+            100% { transform: rotate(0deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>TIME MACHINE 3000</h1>
+        <div class="time-machine">
+            <div class="input-container">
+                <input type="number" id="yearInput" placeholder="Enter Year" min="0">
+                <br>
+                <button id="travelBtn">TIME TRAVEL</button>
+            </div>
+            
+            <div class="display" id="display">
+                <div id="messages"></div>
+                <div class="loading-bar" id="loadingBar"></div>
+            </div>
+        </div>
+    </div>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const travelBtn = document.getElementById('travelBtn');
+            const yearInput = document.getElementById('yearInput');
+            const messagesDiv = document.getElementById('messages');
+            const loadingBar = document.getElementById('loadingBar');
+            const display = document.getElementById('display');
+            
+            // Create traveling boxes for background animation
+            function createTravelBoxes() {
+                for (let i = 0; i < 15; i++) {
+                    const box = document.createElement('div');
+                    box.classList.add('travel-box');
+                    box.style.left = Math.random() * 100 + '%';
+                    box.style.top = Math.random() * 100 + '%';
+                    box.style.animationDelay = Math.random() * 4 + 's';
+                    display.appendChild(box);
+                }
+            }
+            
+            createTravelBoxes();
+            
+            travelBtn.addEventListener('click', function() {
+                const year = yearInput.value;
+                if (!year) {
+                    alert('Please enter a year!');
+                    return;
+                }
+                
+                // Reset display
+                messagesDiv.innerHTML = '';
+                loadingBar.style.width = '0%';
+                
+                // Start the time travel simulation
+                simulateTimeTravel(year);
+            });
+            
+            function simulateTimeTravel(year) {
+                const messages = [
+                    "Initializing time vortex...",
+                    "Calibrating temporal coordinates...",
+                    "Warming up flux capacitor...",
+                    "Calculating space-time trajectory...",
+                    "Calling aliens for coordinates... 📞",
+                    "Creating wormholes... 🌌",
+                    "Avoiding black holes... ⚫",
+                    "Missed call from Modi... 📵",
+                    "Elon Musk tweeted about this... 🐦",
+                    "Negotiating with dinosaurs... 🦖",
+                    "Bypassing paradoxes... 🔄",
+                    "Downloading historical data... 💾",
+                    "Wormhole stabilized... 🌀",
+                    "Time coordinates locked... 🔒",
+                    "Approaching destination... 🎯"
+                ];
+                
+                let currentMessageIndex = 0;
+                
+                // Animate loading bar
+                loadingBar.style.width = '100%';
+                
+                // Display messages with delay
+                function showNextMessage() {
+                    if (currentMessageIndex < messages.length) {
+                        const messageDiv = document.createElement('div');
+                        messageDiv.classList.add('message');
+                        messageDiv.textContent = messages[currentMessageIndex];
+                        messagesDiv.appendChild(messageDiv);
+                        
+                        // Animate message appearance
+                        setTimeout(() => {
+                            messageDiv.style.opacity = 1;
+                            messageDiv.style.transform = 'translateY(0)';
+                        }, 100);
+                        
+                        currentMessageIndex++;
+                        setTimeout(showNextMessage, 300);
+                    } else {
+                        // Show final message after all messages
+                        setTimeout(showFinalMessage, 800);
+                    }
+                }
+                
+                showNextMessage();
+            }
+            
+            function showFinalMessage() {
+                const finalMessage = document.createElement('div');
+                finalMessage.classList.add('final-message');
+                finalMessage.innerHTML = `Huh,The World is ending is 2026 `<div class="skull">💀</div>`;
+                messagesDiv.appendChild(finalMessage);
+                
+                // Animate final message appearance
+                setTimeout(() => {
+                    finalMessage.style.opacity = 1;
+                    finalMessage.style.transform = 'translateY(0)';
+                }, 100);
+            }
+        });
+    </script>
+</body>
+</html>
